@@ -134,21 +134,23 @@ function serialize (source, opts = {}) {
       case 'Object': {
         visited.add(source)
         const tmp = []
+        opts.offset += opts.tab
         for (const key in source) {
           if (Object.prototype.hasOwnProperty.call(source, key)) {
             if (opts.reference && utils.isObject(source[key])) {
               refs.push(key)
               if (!refs.hasReference(source[key])) {
-                tmp.push(Ref.wrapkey(key, opts) + ': ' + stringify(source[key], opts))
+                tmp.push('\n' + ' '.repeat(opts.offset) + Ref.wrapkey(key, opts) + ': ' + stringify(source[key], opts))
               }
               refs.pop()
             } else {
-              tmp.push(Ref.wrapkey(key, opts) + ': ' + stringify(source[key], opts))
+              tmp.push('\n' + ' '.repeat(opts.offset) + Ref.wrapkey(key, opts) + ': ' + stringify(source[key], opts))
             }
           }
         }
+        opts.offset -= opts.tab
         visited.delete(source)
-        return `{${tmp.join(', ')}}`
+        return `{${tmp.join(', ')}\n${' '.repeat(opts.offset)}}`
       }
       default:
         return '' + source
